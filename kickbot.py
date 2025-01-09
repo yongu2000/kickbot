@@ -3,6 +3,8 @@ import discord
 from discord.ext import commands, tasks
 import asyncio
 from dotenv import load_dotenv
+from flask import Flask
+from threading import Thread
 
 load_dotenv() 
 intents = discord.Intents.default()
@@ -42,6 +44,20 @@ async def 타이머(ctx, 시간: int):
         await ctx.send(f"{voice_channel.name} 채널의 모든 사용자를 내보냈습니다.")
     else:
         await ctx.send(f"{voice_channel.name} 채널에 사용자가 없습니다.")
+
+
+
+app = Flask("")
+
+@app.route("/")
+def home():
+    return "봇이 실행 중입니다."
+
+def run():
+    app.run(host="0.0.0.0", port=8000)
+
+# Flask 서버를 별도의 스레드로 실행
+Thread(target=run).start()
 
 
 # bot.run(os.getenv("DISCORD_BOT_TOKEN"))

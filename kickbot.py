@@ -43,4 +43,6 @@ async def 타이머(ctx, 시간: int):
     else:
         await ctx.send(f"{voice_channel.name} 채널에 사용자가 없습니다.")
 
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
+# bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+bot.run(os.environ.get("DISCORD_BOT_TOKEN"))

@@ -22,17 +22,24 @@ async def on_ready():
 @bot.command()
 async def 타이머(ctx, 시간: int):
     """지정된 시간이 지난 후 음성 채널에서 모든 사용자를 내보냅니다."""
-    # 음성 채널에 사용자가 있는지 확인
     if not ctx.author.voice:
         await ctx.send("음성 채널에 먼저 접속하세요!")
         return
 
-    # 현재 사용자가 있는 음성 채널 가져오기
     voice_channel = ctx.author.voice.channel
-    await ctx.send(f"{시간}분 타이머가 설정되었습니다. 이후 {voice_channel.name} 채널의 모든 사용자를 내보냅니다.")
+    await ctx.send(f"⏳ {시간}분 타이머가 설정되었습니다! 시간이 끝나면 {voice_channel.name} 채널에서 모든 사용자를 내보냅니다.")
 
-    # 지정된 시간 대기 (시간을 초로 변환)
-    await asyncio.sleep(시간 * 60)
+    # 1분 전 알림 (설정한 시간이 1분 이상일 때만)
+    if 시간 > 1:
+        await asyncio.sleep((시간 - 1) * 60)  # (시간 - 1)분 대기
+        await ctx.send(f"⚠️ 1분 후 {voice_channel.name} 채널의 모든 사용자가 강퇴됩니다!")
+
+    # 30초 전 알림
+    await asyncio.sleep(30)  # 30초 대기
+    await ctx.send(f"⏳ 30초 후 {voice_channel.name} 채널의 모든 사용자가 강퇴됩니다!")
+
+    # 남은 30초 대기 후 강제 퇴장
+    await asyncio.sleep(30)
 
     # 음성 채널의 모든 멤버 연결 끊기
     if voice_channel.members:  # 채널에 사용자가 있는 경우

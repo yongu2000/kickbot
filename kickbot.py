@@ -19,6 +19,25 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"강퇴하는 용우가 준비되었습니다!")
 
+async def play_alarm(voice_channel):
+    """음성 채널에서 알람 소리를 재생하는 함수"""
+    if not voice_channel:
+        return
+    
+    # 봇이 이미 음성 채널에 있는 경우 연결을 끊고 다시 연결
+    if bot.voice_clients:
+        await bot.voice_clients[0].disconnect()
+
+    voice_client = await voice_channel.connect()
+    
+    # FFmpeg을 이용해 'alarm.mp3' 파일 재생
+    audio_source = discord.FFmpegPCMAudio("alarm.mp3")
+    if not voice_client.is_playing():
+        voice_client.play(audio_source)
+
+    await asyncio.sleep(3)  # 3초 재생 후 종료
+    await voice_client.disconnect()
+
 @bot.command()
 async def 타이머(ctx, 시간: int):
     """지정된 시간이 지난 후 음성 채널에서 모든 사용자를 내보냅니다."""
@@ -29,14 +48,16 @@ async def 타이머(ctx, 시간: int):
     voice_channel = ctx.author.voice.channel
     await ctx.send(f"⏳ {시간}분 타이머가 설정되었습니다! 시간이 끝나면 {voice_channel.name} 채널에서 모든 사용자를 내보냅니다.")
 
-    # 1분 전 알림 (설정한 시간이 1분 이상일 때만)
+    # 1분 전 알람 (설정한 시간이 1분 이상일 때만)
     if 시간 > 1:
         await asyncio.sleep((시간 - 1) * 60)  # (시간 - 1)분 대기
         await ctx.send(f"⚠️ 1분 후 {voice_channel.name} 채널의 모든 사용자가 강퇴됩니다!")
+        await play_alarm(voice_channel)  # 알람 재생
 
-    # 30초 전 알림
+    # 30초 전 알람
     await asyncio.sleep(30)  # 30초 대기
     await ctx.send(f"⏳ 30초 후 {voice_channel.name} 채널의 모든 사용자가 강퇴됩니다!")
+    await play_alarm(voice_channel)  # 알람 재생
 
     # 남은 30초 대기 후 강제 퇴장
     await asyncio.sleep(30)
@@ -51,8 +72,6 @@ async def 타이머(ctx, 시간: int):
         await ctx.send(f"{voice_channel.name} 채널의 모든 사용자를 내보냈습니다.")
     else:
         await ctx.send(f"{voice_channel.name} 채널에 사용자가 없습니다.")
-
-
 
 app = Flask("")
 

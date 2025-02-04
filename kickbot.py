@@ -7,6 +7,8 @@ from flask import Flask
 from threading import Thread
 import static_ffmpeg
 
+os.system("static_ffmpeg -i alarm.mp3")
+
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,15 +27,25 @@ async def play_alarm(voice_client):
     if not voice_client or not voice_client.is_connected():
         return
 
-    # FFmpeg 실행 파일 경로 가져오기
-    ffmpeg_path = static_ffmpeg.get_ffmpeg_path()
-
     # 알람 음원 재생
-    audio_source = discord.FFmpegPCMAudio("alarm.mp3", executable=ffmpeg_path)
+    audio_source = discord.FFmpegPCMAudio("alarm.mp3", executable="static_ffmpeg")
     if not voice_client.is_playing():
         voice_client.play(audio_source)
 
     await asyncio.sleep(3)  # 3초 동안 재생 후 종료
+
+@bot.command()
+async def 테스트(ctx):
+    if not ctx.author.voice:
+        await ctx.send("음성 채널에 먼저 접속하세요!")
+        return
+    
+    voice_channel = ctx.author.voice.channel
+    await ctx.send(f"테스트입니다. 채원씨 사랑해요")
+
+    # 봇이 음성 채널에 접속
+    voice_client = await voice_channel.connect()
+    await play_alarm(voice_client)  # 알람 재생
 
 @bot.command()
 async def 타이머(ctx, 시간: int):

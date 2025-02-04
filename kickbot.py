@@ -5,6 +5,10 @@ import asyncio
 from dotenv import load_dotenv
 from flask import Flask
 from threading import Thread
+import static_ffmpeg
+
+os.system("static_ffmpeg -i alarm.mp3")
+
 
 load_dotenv()
 intents = discord.Intents.default()
@@ -24,7 +28,7 @@ async def play_alarm(voice_client):
     if not voice_client or not voice_client.is_connected():
         return
     
-    audio_source = discord.FFmpegPCMAudio("alarm.mp3")
+    audio_source = discord.FFmpegPCMAudio(executable="static_ffmpeg")
     if not voice_client.is_playing():
         voice_client.play(audio_source)
 
